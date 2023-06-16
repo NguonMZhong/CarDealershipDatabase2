@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class DealershipApp
 {
-    private Scanner userInput = new Scanner(System.in);
+    private final Scanner userInput = new Scanner(System.in);
 
     private VehicleDao vehicleDao;
 
@@ -29,8 +29,9 @@ public class DealershipApp
                     break;
                 case 2:
                     DisplayByMakeModel();
+                    break;
                 case 3:
-                    //getByYear();
+                    DisplayByYear();
                     break;
                 case 4:
                     //getByColor();
@@ -66,13 +67,16 @@ public class DealershipApp
         System.out.println(" 10) Sale a vehicle");
         System.out.print("Enter: ");
 
-        return userInput.nextInt();
+        int choice = userInput.nextInt();
+        userInput.nextLine();
+
+        return choice;
     }
 
     private void DisplayByPrice()
     {
         System.out.println();
-        System.out.println("Enter the price range:");
+        System.out.println("Enter the price range.");
         System.out.print("Minimum: ");
         BigDecimal minPrice = userInput.nextBigDecimal();
         System.out.print("Maximum: ");
@@ -90,6 +94,28 @@ public class DealershipApp
 
     private void DisplayByMakeModel()
     {
-        
+        System.out.println();
+        System.out.print("Enter the make: ");
+        String make = userInput.nextLine();
+
+        System.out.print("Enter the model: ");
+        String model = userInput.nextLine();
+
+        System.out.println();
+
+        var vehicles = vehicleDao.getByMakeModel(make,model);
+        System.out.println();
+
+        for(var vehicle : vehicles)
+        {
+            System.out.printf("%-15s %-15s%n", vehicle.getMake(), vehicle.getModel());
+        }
+
+    }
+
+    private void DisplayByYear()
+    {
+        System.out.println();
+        System.out.println();
     }
 }

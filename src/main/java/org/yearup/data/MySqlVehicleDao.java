@@ -60,8 +60,44 @@ public class MySqlVehicleDao implements VehicleDao
     }
 
     @Override
-    public Vehicle getByMakeModel()
+    public List<Vehicle> getByMakeModel(String make, String model)
     {
-        return null;
+        List<Vehicle> vehicles = new ArrayList<>();
+
+        String sql = "SELECT make, model" +
+                     " FROM vehicles" +
+                     " WHERE make = ? AND model = ?;";
+
+        try(Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+        )
+        {
+            statement.setString(1,make);
+            statement.setString(2,model);
+
+            ResultSet row = statement.executeQuery();
+
+            while(row.next())
+            {
+                String vehicleMake = row.getString("make");
+                String vehicleModel = row.getString("model");
+
+                Vehicle vehicle = new Vehicle()
+                {{
+                    setMake(vehicleMake);
+                    setModel(vehicleModel);
+                }};
+                vehicles.add(vehicle);
+
+
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return vehicles;
+
     }
 }

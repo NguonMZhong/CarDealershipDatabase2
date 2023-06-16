@@ -9,7 +9,7 @@ public interface VehicleDao
 {
     List<Vehicle> getByPrice(BigDecimal minPrice, BigDecimal maxPrice);
 
-    Vehicle getByMakeModel();
+    List<Vehicle> getByMakeModel(String make, String model);
 
 
 }

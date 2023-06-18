@@ -23,7 +23,7 @@ public interface VehicleDao
     Vehicle create(Vehicle vehicle);
 
     // delete vehicle
-    //void delete(String vin)
+    void delete(String vin);
 
 
 }

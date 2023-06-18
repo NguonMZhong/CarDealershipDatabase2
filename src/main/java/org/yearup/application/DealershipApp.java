@@ -46,7 +46,7 @@ public class DealershipApp
                     addVehicle();
                     break;
                 case 8:
-                    removeVehicle();
+                    deleteVehicle();
                     break;
                 case 0:
                     System.out.println("Exit");
@@ -236,10 +236,42 @@ public class DealershipApp
                     ,vehicle.getMiles(),vehicle.getPrice());
 
     }
+    
+    private void deleteVehicle() {
+        System.out.println();
+        System.out.print("Enter the vehicle VIN: ");
+        String vin = userInput.nextLine().strip();
 
-    private void removeVehicle()
-    {
+        Vehicle vehicleToDelete = null;
 
+        // Fetch the vehicle details from the database
+        List<Vehicle> vehicles = vehicleDao.getAllVehicle();
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle.getVin().equalsIgnoreCase(vin)) {
+                vehicleToDelete = vehicle;
+                break;
+            }
+        }
+
+        if (vehicleToDelete == null) {
+            System.out.println("Vehicle with VIN " + vin + " does not exist.");
+        } else {
+            String vehicleDetails = String.format("%-15s %-15s %-15s %-15s %-15d %8.2f%n",
+                    vehicleToDelete.getVin(), vehicleToDelete.getMake(), vehicleToDelete.getModel(),
+                    vehicleToDelete.getColor(), vehicleToDelete.getMiles(), vehicleToDelete.getPrice());
+
+            System.out.println("Vehicle details: " + vehicleDetails);
+
+            System.out.println();
+            System.out.print("Are you sure you want to delete this vehicle? (y/n): ");
+            String answer = userInput.nextLine().strip();
+
+            if (answer.equalsIgnoreCase("y")) {
+                vehicleDao.delete(vin);
+                System.out.println(vin + " has been deleted.");
+            }
+        }
     }
+
 
 }

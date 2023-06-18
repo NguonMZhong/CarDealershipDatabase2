@@ -1,5 +1,6 @@
 package org.yearup.data;
 
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import org.yearup.models.Vehicle;
 
 import javax.sql.DataSource;
@@ -303,5 +304,28 @@ public class MySqlVehicleDao implements VehicleDao
 
         }
         return null;
+    }
+
+    @Override
+    public void delete(String vin)
+    {
+        String sql = """
+                DELETE FROM vehicles
+                WHERE vin = ?;
+                """;
+
+        try ( Connection connection = dataSource.getConnection();
+              PreparedStatement statement = connection.prepareStatement(sql)
+        )
+        {
+            statement.setString(1,vin);
+
+            statement.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+
+        }
+
     }
 }

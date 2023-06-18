@@ -42,6 +42,12 @@ public class DealershipApp
                 case 6:
                     DisplayAllVehicles();
                     break;
+                case 7:
+                    addVehicle();
+                    break;
+                case 8:
+                    removeVehicle();
+                    break;
                 case 0:
                     System.out.println("Exit");
                     return;
@@ -181,6 +187,58 @@ public class DealershipApp
                     ,vehicle.getMake(),vehicle.getModel(),vehicle.getColor(),vehicle.getYear()
                     ,vehicle.getMiles(),vehicle.getPrice());
         }
+
+    }
+
+    private void addVehicle()
+    {
+        System.out.println();
+        System.out.print("Enter the vehicle vin: ");
+        String vin = userInput.nextLine().strip();
+
+        System.out.print("Enter the vehicle make: ");
+        String make = userInput.nextLine().strip();
+
+        System.out.print("Enter the vehicle model: ");
+        String model = userInput.nextLine().strip();
+
+        System.out.print("Enter the vehicle color: ");
+        String color = userInput.nextLine().strip();
+
+        System.out.print("Enter the vehicle year: ");
+        int year = userInput.nextInt();
+
+        System.out.print("Enter the vehicle mileage: ");
+        int miles = userInput.nextInt();
+
+        System.out.print("Enter the vehicle price: ");
+        BigDecimal price = userInput.nextBigDecimal();
+
+        Vehicle vehicle = new Vehicle()
+        {{
+            setVin(vin);
+            setMake(make);
+            setModel(model);
+            setColor(color);
+            setYear(year);
+            setMiles(miles);
+            setPrice(price);
+        }};
+
+        var newVehicle = vehicleDao.create(vehicle);
+
+        System.out.println();
+        System.out.println("Vehicle has been added.\n");
+
+
+        System.out.printf("%-15s %-15s %-15s %-15s %-15d %-15d %8.2f%n", vehicle.getVin()
+                    ,vehicle.getMake(),vehicle.getModel(),vehicle.getColor(),vehicle.getYear()
+                    ,vehicle.getMiles(),vehicle.getPrice());
+
+    }
+
+    private void removeVehicle()
+    {
 
     }
 

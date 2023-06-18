@@ -5,10 +5,7 @@ import org.yearup.models.Vehicle;
 import javax.sql.DataSource;
 import javax.xml.transform.Result;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -267,5 +264,44 @@ public class MySqlVehicleDao implements VehicleDao
         }
 
         return vehicles;
+    }
+
+    @Override
+    public Vehicle create(Vehicle vehicle)
+    {
+        String sql = """
+                INSERT INTO vehicles
+                (
+                    vin
+                    ,make
+                    ,model
+                    ,color
+                    ,year
+                    ,miles
+                    ,price
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?);
+                """;
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+                )
+        {
+            statement.setString(1,vehicle.getVin());
+            statement.setString(2,vehicle.getMake());
+            statement.setString(3,vehicle.getModel());
+            statement.setString(4, vehicle.getColor());
+            statement.setInt(5,vehicle.getYear());
+            statement.setInt(6,vehicle.getMiles());
+            statement.setBigDecimal(7,vehicle.getPrice());
+
+            statement.executeUpdate();
+
+        }
+        catch (SQLException e)
+        {
+
+        }
+        return null;
     }
 }

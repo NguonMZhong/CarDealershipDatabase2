@@ -19,5 +19,11 @@ public interface VehicleDao
 
     List<Vehicle> getAllVehicle();
 
+    // create vehicle
+    Vehicle create(Vehicle vehicle);
+
+    // delete vehicle
+    //void delete(String vin)
+
 
 }

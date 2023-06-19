@@ -1,10 +1,8 @@
 package org.yearup.data;
 
-import com.mysql.cj.x.protobuf.MysqlxPrepare;
 import org.yearup.models.Vehicle;
 
 import javax.sql.DataSource;
-import javax.xml.transform.Result;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -15,6 +13,56 @@ public class MySqlVehicleDao implements VehicleDao
     private DataSource dataSource;
 
     public MySqlVehicleDao(DataSource dataSource) { this.dataSource = dataSource; }
+
+    @Override
+    public List<Vehicle> getByVin(String vehicleVin)
+    {
+        List<Vehicle> vehicles = new ArrayList<>();
+
+        String sql = "SELECT vin, make, model, color, year, miles, price" +
+                     " FROM vehicles " +
+                     " WHERE vin = ?;";
+        try(Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+        )
+        {
+            statement.setString(1, vehicleVin);
+
+            ResultSet row = statement.executeQuery();
+
+            while(row.next())
+            {
+                String vin = row.getString("vin");
+                String make = row.getString("make");
+                String model = row.getString("model");
+                String color = row.getString("color");
+                int year = row.getInt("year");
+                int miles = row.getInt("miles");
+                BigDecimal price = row.getBigDecimal("price");
+
+                Vehicle vehicle = new Vehicle()
+                {{
+                    setVin(vin);
+                    setMake(make);
+                    setModel(model);
+                    setColor(color);
+                    setYear(year);
+                    setMiles(miles);
+                    setPrice(price);
+                }};
+
+                vehicles.add(vehicle);
+
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        return vehicles;
+    }
+
     @Override
     public List<Vehicle> getByPrice(BigDecimal minPrice, BigDecimal maxPrice)
     {
@@ -324,6 +372,35 @@ public class MySqlVehicleDao implements VehicleDao
         }
         catch (SQLException e)
         {
+
+        }
+
+    }
+
+    @Override
+    public boolean update(String vin, boolean sold)
+    {
+        String sql = """
+                UPDATE vehicles
+                SET sold = ?
+                WHERE vin = ?;
+                """;
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        )
+        {
+            statement.setBoolean(1, sold);
+            statement.setString(2, vin);
+
+            int rowsAffected = statement.executeUpdate();
+            return rowsAffected > 0;
+
+        }
+        catch (SQLException e)
+        {
+            throw new RuntimeException();
 
         }
 

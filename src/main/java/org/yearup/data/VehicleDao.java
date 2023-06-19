@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface VehicleDao
 {
+    List<Vehicle> getByVin(String vehicleVin);
     List<Vehicle> getByPrice(BigDecimal minPrice, BigDecimal maxPrice);
 
     List<Vehicle> getByMakeModel(String make, String model);
@@ -24,6 +25,7 @@ public interface VehicleDao
 
     // delete vehicle
     void delete(String vin);
+    boolean update(String vin, boolean sold);
 
 
 }

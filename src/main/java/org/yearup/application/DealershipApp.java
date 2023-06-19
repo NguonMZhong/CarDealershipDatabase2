@@ -1,7 +1,10 @@
 package org.yearup.application;
 
+import org.yearup.data.LeaseDao;
 import org.yearup.data.MySqlVehicleDao;
+import org.yearup.data.SalesDao;
 import org.yearup.data.VehicleDao;
+import org.yearup.models.SalesContract;
 import org.yearup.models.Vehicle;
 
 import java.math.BigDecimal;
@@ -14,7 +17,18 @@ public class DealershipApp
 
     private VehicleDao vehicleDao;
 
-    public DealershipApp(VehicleDao vehicleDao) { this.vehicleDao = vehicleDao; }
+    private SalesDao salesDao;
+
+    private LeaseDao leaseDao;
+
+    public DealershipApp(VehicleDao vehicleDao, SalesDao salesDao, LeaseDao leaseDao)
+    {
+        this.vehicleDao = vehicleDao;
+        this.salesDao = salesDao;
+        this.leaseDao = leaseDao;
+
+
+    }
     public void run()
     {
         while(true)
@@ -48,6 +62,9 @@ public class DealershipApp
                 case 8:
                     deleteVehicle();
                     break;
+                case 9:
+                    addSalesContract();
+                    break;
                 case 0:
                     System.out.println("Exit");
                     return;
@@ -70,6 +87,7 @@ public class DealershipApp
         System.out.println(" 7) Add a vehicle");
         System.out.println(" 8) Remove a vehicle");
         System.out.println(" 9) Sale a vehicle");
+        System.out.println(" 10) Lease a vehicle");
         System.out.print("Enter: ");
 
         int choice = userInput.nextInt();
@@ -236,7 +254,7 @@ public class DealershipApp
                     ,vehicle.getMiles(),vehicle.getPrice());
 
     }
-    
+
     private void deleteVehicle() {
         System.out.println();
         System.out.print("Enter the vehicle VIN: ");
@@ -273,5 +291,70 @@ public class DealershipApp
         }
     }
 
+    private void addSalesContract() {
+        System.out.println();
+        System.out.print("Enter the vehicle VIN: ");
+        String vin = userInput.nextLine().strip();
+
+        BigDecimal salesPrice = null;
+        List<Vehicle> vehicles = vehicleDao.getByVin(vin);
+        if (!vehicles.isEmpty()) {
+            Vehicle selectedVehicle = vehicles.get(0);
+            salesPrice = selectedVehicle.getPrice();
+            System.out.println();
+            System.out.println("Selected vehicle:");
+            System.out.printf("%-15s %-15s %-15s %-15s %-15d %-15d %8.2f%n",
+                    selectedVehicle.getVin(), selectedVehicle.getMake(), selectedVehicle.getModel(),
+                    selectedVehicle.getColor(), selectedVehicle.getYear(), selectedVehicle.getMiles(),
+                    salesPrice);
+        } else {
+            System.out.println("Vehicle with VIN " + vin + " does not exist.");
+            return;
+        }
+
+        System.out.println();
+        System.out.print("Enter your first and last name: ");
+        String name = userInput.nextLine().strip();
+
+        System.out.print("Enter your email: ");
+        String email = userInput.nextLine().strip();
+
+        BigDecimal recordingFee = BigDecimal.valueOf(100);
+        BigDecimal processingFee = salesPrice.compareTo(BigDecimal.valueOf(10000)) < 0 ?
+                BigDecimal.valueOf(295) : BigDecimal.valueOf(495);
+        BigDecimal salesTax = salesPrice.multiply(BigDecimal.valueOf(0.05));
+
+        SalesContract salesContract = new SalesContract();
+        salesContract.setVin(vin);
+        salesContract.setCustomerName(name);
+        salesContract.setCustomerEmail(email);
+        salesContract.setSalesPrice(salesPrice);
+        salesContract.setRecordingFee(recordingFee);
+        salesContract.setProcessingFee(processingFee);
+        salesContract.setSalesTax(salesTax);
+
+        SalesContract newContract = salesDao.create(salesContract);
+
+        if (newContract != null) {
+
+            boolean updated = vehicleDao.update(vin, true);
+
+            if (updated) {
+                System.out.println();
+                System.out.println("Sales Contract has been added and vehicle marked as sold.");
+                System.out.println();
+
+                System.out.printf("%-15s %-15s %-15s %8.2f %8.2f %8.2f %8.2f%n",
+                        newContract.getVin(), newContract.getCustomerName(),
+                        newContract.getCustomerEmail(), newContract.getSalesPrice(),
+                        newContract.getRecordingFee(), newContract.getProcessingFee(),
+                        newContract.getSalesTax());
+            } else {
+                System.out.println("Failed to mark the vehicle as sold.");
+            }
+        } else {
+            System.out.println("Failed to add the Sales Contract.");
+        }
+    }
 
 }
